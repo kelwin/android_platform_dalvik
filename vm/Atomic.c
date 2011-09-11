@@ -246,6 +246,7 @@ int64_t dvmQuasiAtomicSwap64FieldTaint(int64_t value, volatile int64_t* addr, ui
 
 #if __arm__
 
+/*
 // read 64-bit value followed by taint tag
 int64x2_t dvmQuasiAtomicRead64FieldTaint(volatile const int64_t* addr) {
     // return: r0/r1 = 64-bit value, r2 = taint, r3 = don't care
@@ -261,7 +262,7 @@ int64x2_t dvmQuasiAtomicRead64FieldTaint(volatile const int64_t* addr) {
 
 #else
 // FIXME: taint propagation won't work on x86...
-
+*/
 int64_t dvmQuasiAtomicRead64FieldTaint(volatile const int64_t* addr) {
 	int64_t result;
     pthread_mutex_t*  lock = SWAP_LOCK(addr);

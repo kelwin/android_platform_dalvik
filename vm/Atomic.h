@@ -53,9 +53,9 @@ int64_t dvmQuasiAtomicRead32SfieldTaint(volatile const int32_t* addr);
 int32_t dvmQuasiAtomicSwap32SfieldTaint(int32_t value, volatile int32_t* addr, uint32_t taint);
 
 #if __arm__
-#include <arm_neon.h>
-int64x2_t dvmQuasiAtomicRead64FieldTaint(volatile const int64_t* addr);
-#else
+//#include <arm_neon.h>
+//int64x2_t dvmQuasiAtomicRead64FieldTaint(volatile const int64_t* addr);
+//#else
 int64_t dvmQuasiAtomicRead64FieldTaint(volatile const int64_t* addr);
 #endif /*__arm__*/
 
