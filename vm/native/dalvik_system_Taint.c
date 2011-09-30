@@ -612,17 +612,23 @@ static void Dalvik_dalvik_system_Taint_log(const u4* args,
     StringObject* msgObj = (StringObject*) args[0];
     char *msg;
 
-    if (msgObj == NULL) {
-	dvmThrowException("Ljava/lang/NullPointerException;", NULL);
-	RETURN_VOID();
+    if (msgObj == NULL) 
+    {
+        dvmThrowException("Ljava/lang/NullPointerException;", NULL);
+        RETURN_VOID();
     }
 
 	msg = dvmCreateCstrFromString(msgObj);
 	LOGW("TaintLog: %s", msg);
 	char *curmsg = msg;
-	while(strlen(curmsg) > 1013)
+    if (strlen(curmsg) > 1013) // "TaintLog: " is 10 characters long
+    {
+        curmsg += 1013;
+        LOGW("%s", curmsg);
+    }
+	while(strlen(curmsg) > 1023)
 	{   
-		curmsg = curmsg+1013;
+		curmsg += 1023;
 		LOGW("%s", curmsg);
 	}   
 	free(msg);
@@ -634,7 +640,7 @@ static void Dalvik_dalvik_system_Taint_log(const u4* args,
  * public static void logPathFromFd(int fd)
  */
 static void Dalvik_dalvik_system_Taint_logPathFromFd(const u4* args,
-    JValue* pResult)
+                                                     JValue* pResult)
 {
     int fd = (int) args[0];
     pid_t pid;
@@ -646,10 +652,15 @@ static void Dalvik_dalvik_system_Taint_logPathFromFd(const u4* args,
     pid = getpid();
     snprintf(ppath, 20, "/proc/%d/fd/%d", pid, fd);
     err = readlink(ppath, rpath, 80);
-    if (err >= 0) {
-	LOGW("TaintLog: fd %d -> %s", fd, rpath);
-    } else {
-	LOGW("TaintLog: error finding path for fd %d", fd);
+    if (err >= 0) 
+    {
+        //LOGW("TaintLog: fd %d -> %s", fd, rpath);
+        LOGW("TaintLog: [{\"__FileDescriptorLogObject__\" : \"true\", \"fileDescriptor\" : %s, \"path\" : \"%s\"}]", fd, rpath);
+    } 
+    else 
+    {
+        //LOGW("TaintLog: error finding path for fd %d", fd);
+        LOGW("TaintLog: [{\"__FileDescriptorLogObject__\" : \"true\", \"fileDescriptor\" : %s, \"path\" : \"\"}]", fd);
     }
 
     RETURN_VOID();
@@ -747,7 +758,5 @@ const DalvikNativeMethod dvm_dalvik_system_Taint[] = {
         Dalvik_dalvik_system_Taint_log},
     { "logPathFromFd",  "(I)V",
         Dalvik_dalvik_system_Taint_logPathFromFd},
-    { "logPeerFromFd",  "(I)V",
-        Dalvik_dalvik_system_Taint_logPeerFromFd},
     { NULL, NULL, NULL },
 };
