@@ -46,5 +46,7 @@ typedef struct Taint {
 #define TAINT_DEVICE_SN     ((u4)0x00002000) /* Device serial number */
 #define TAINT_ACCOUNT       ((u4)0x00004000) /* User account information */
 #define TAINT_HISTORY       ((u4)0x00008000) /* browser history */
+#define TAINT_INCOMING_DATA ((u4)0x00010000) /* incoming data */
+#define TAINT_USER_INPUT    ((u4)0x00020000) /* user input */
 
 #endif /*_DALVIK_INTERP_TAINT*/

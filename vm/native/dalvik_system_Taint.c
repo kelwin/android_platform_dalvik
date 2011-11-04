@@ -47,6 +47,24 @@ static void Dalvik_dalvik_system_Taint_addTaintString(const u4* args,
 }
 
 /*
+ * public static void addTaintCharSequence(String str, int tag)
+ */
+static void Dalvik_dalvik_system_Taint_addTaintCharSequence(const u4* args,
+    JValue* pResult)
+{
+    StringObject *strObj = (StringObject*) args[0];
+    u4 tag = args[1];
+    ArrayObject *value = NULL;
+
+    if (strObj) {
+	value = (ArrayObject*) dvmGetFieldObject((Object*)strObj,
+				    gDvm.offJavaLangString_value);
+	value->taint.tag |= tag;
+    }
+    RETURN_VOID();
+}
+
+/*
  * public static void addTaintObjectArray(Object[] array, int tag)
  */
 static void Dalvik_dalvik_system_Taint_addTaintObjectArray(const u4* args,
@@ -276,6 +294,24 @@ static void Dalvik_dalvik_system_Taint_addTaintDouble(const u4* args,
  * public static int getTaintString(String str)
  */
 static void Dalvik_dalvik_system_Taint_getTaintString(const u4* args,
+    JValue* pResult)
+{
+    StringObject *strObj = (StringObject*) args[0];
+    ArrayObject *value = NULL;
+
+    if (strObj) {
+	value = (ArrayObject*) dvmGetFieldObject((Object*)strObj,
+				    gDvm.offJavaLangString_value);
+	RETURN_INT(value->taint.tag);
+    } else {
+	RETURN_INT(TAINT_CLEAR);
+    }
+}
+
+/*
+ * public static int getTaintCharSequence(CharSequence cs)
+ */
+static void Dalvik_dalvik_system_Taint_getTaintCharSequence(const u4* args,
     JValue* pResult)
 {
     StringObject *strObj = (StringObject*) args[0];
@@ -655,12 +691,12 @@ static void Dalvik_dalvik_system_Taint_logPathFromFd(const u4* args,
     if (err >= 0) 
     {
         //LOGW("TaintLog: fd %d -> %s", fd, rpath);
-        LOGW("TaintLog: [{\"__FileDescriptorLogObject__\" : \"true\", \"fileDescriptor\" : %s, \"path\" : \"%s\"}]", fd, rpath);
+        LOGW("TaintLog: [{\"__FileDescriptorLogObject__\" : \"true\", \"fileDescriptor\" : %d, \"path\" : \"%s\"}]", fd, rpath);
     } 
     else 
     {
         //LOGW("TaintLog: error finding path for fd %d", fd);
-        LOGW("TaintLog: [{\"__FileDescriptorLogObject__\" : \"true\", \"fileDescriptor\" : %s, \"path\" : \"\"}]", fd);
+        LOGW("TaintLog: [{\"__FileDescriptorLogObject__\" : \"true\", \"fileDescriptor\" : %d, \"path\" : \"\"}]", fd);
     }
 
     RETURN_VOID();
@@ -682,6 +718,8 @@ static void Dalvik_dalvik_system_Taint_logPeerFromFd(const u4* args,
 const DalvikNativeMethod dvm_dalvik_system_Taint[] = {
     { "addTaintString",  "(Ljava/lang/String;I)V",
         Dalvik_dalvik_system_Taint_addTaintString},
+    { "addTaintCharSequence",  "(Ljava/lang/CharSequence;I)V",
+        Dalvik_dalvik_system_Taint_addTaintCharSequence},
     { "addTaintObjectArray",  "([Ljava/lang/Object;I)V",
         Dalvik_dalvik_system_Taint_addTaintObjectArray},
     { "addTaintBooleanArray",  "([ZI)V",
@@ -716,6 +754,8 @@ const DalvikNativeMethod dvm_dalvik_system_Taint[] = {
         Dalvik_dalvik_system_Taint_addTaintDouble},
     { "getTaintString",  "(Ljava/lang/String;)I",
         Dalvik_dalvik_system_Taint_getTaintString},
+    { "getTaintCharSequence",  "(Ljava/lang/CharSequence;)I",
+        Dalvik_dalvik_system_Taint_getTaintCharSequence},
     { "getTaintObjectArray",  "([Ljava/lang/Object;)I",
         Dalvik_dalvik_system_Taint_getTaintObjectArray},
     { "getTaintBooleanArray",  "([Z)I",
