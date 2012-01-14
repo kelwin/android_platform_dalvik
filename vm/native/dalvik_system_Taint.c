@@ -247,6 +247,20 @@ static void Dalvik_dalvik_system_Taint_addTaintInt(const u4* args,
 }
 
 /*
+ * public static short addTaintShort(short val, int tag)
+ */
+static void Dalvik_dalvik_system_Taint_addTaintShort(const u4* args,
+    JValue* pResult)
+{
+    u2 val     = args[0];
+    u4 tag     = args[1];	  /* the tag to add */
+    u4* rtaint = (u4*) &args[2];  /* pointer to return taint tag */
+    u4 vtaint  = args[3];	  /* the existing taint tag on val */
+    *rtaint = (vtaint | tag);
+    RETURN_SHORT(val);
+}
+
+/*
  * public static long addTaintLong(long val, int tag)
  */
 static void Dalvik_dalvik_system_Taint_addTaintLong(const u4* args,
@@ -860,6 +874,8 @@ const DalvikNativeMethod dvm_dalvik_system_Taint[] = {
         Dalvik_dalvik_system_Taint_addTaintByte},
     { "addTaintInt",  "(II)I",
         Dalvik_dalvik_system_Taint_addTaintInt},
+    { "addTaintShort",  "(SI)S",
+        Dalvik_dalvik_system_Taint_addTaintShort},
     { "addTaintLong",  "(JI)J",
         Dalvik_dalvik_system_Taint_addTaintLong},
     { "addTaintFloat",  "(FI)F",

@@ -48,5 +48,6 @@ typedef struct Taint {
 #define TAINT_HISTORY       ((u4)0x00008000) /* browser history */
 #define TAINT_INCOMING_DATA ((u4)0x00010000) /* incoming data */
 #define TAINT_USER_INPUT    ((u4)0x00020000) /* user input */
+#define TAINT_MEDIA         ((u4)0x00040000) /* media library */
 
 #endif /*_DALVIK_INTERP_TAINT*/

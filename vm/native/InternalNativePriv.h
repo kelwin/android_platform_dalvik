@@ -31,6 +31,7 @@
 #endif
 #define RETURN_BOOLEAN(_val)    do { pResult->i = (_val); return; } while(0)
 #define RETURN_INT(_val)        do { pResult->i = (_val); return; } while(0)
+#define RETURN_SHORT(_val)      do { pResult->s = (_val); return; } while(0)
 #define RETURN_LONG(_val)       do { pResult->j = (_val); return; } while(0)
 #define RETURN_FLOAT(_val)      do { pResult->f = (_val); return; } while(0)
 #define RETURN_DOUBLE(_val)     do { pResult->d = (_val); return; } while(0)
