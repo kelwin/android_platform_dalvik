@@ -25,6 +25,8 @@
 #include "attr/xattr.h"
 
 #include <errno.h>
+#include <string.h>
+#include <stdio.h>
 
 #define TAINT_XATTR_NAME "user.taint"
 
@@ -525,13 +527,13 @@ static u4 getTaintXattr(int fd)
 	if (errno == ENOATTR) {
 	    /* do nothing */
 	} else if (errno == ERANGE) {
-	    LOGW("TaintLog: fgetxattr(%d) contents to large", fd);
+	    LOGW("DroidBox: fgetxattr(%d) contents to large", fd);
 	} else if (errno == ENOTSUP) {
 	    /* XATTRs are not supported. No need to spam the logs */
 	} else if (errno == EPERM) {
 	    /* Strange interaction with /dev/log/main. Suppress the log */
 	} else {
-	    LOGW("TaintLog: fgetxattr(%d): unknown error code %d", fd, errno);
+	    LOGW("DroidBox: fgetxattr(%d): unknown error code %d", fd, errno);
 	}
     }
 
@@ -546,13 +548,13 @@ static void setTaintXattr(int fd, u4 tag)
 
     if (ret < 0) {
 	if (errno == ENOSPC || errno == EDQUOT) {
-	    LOGW("TaintLog: fsetxattr(%d): not enough room to set xattr", fd);
+	    LOGW("DroidBox: fsetxattr(%d): not enough room to set xattr", fd);
 	} else if (errno == ENOTSUP) {
 	    /* XATTRs are not supported. No need to spam the logs */
 	} else if (errno == EPERM) {
 	    /* Strange interaction with /dev/log/main. Suppress the log */
 	} else {
-	    LOGW("TaintLog: fsetxattr(%d): unknown error code %d", fd, errno);
+	    LOGW("DroidBox: fsetxattr(%d): unknown error code %d", fd, errno);
 	}
     }
 
@@ -572,7 +574,7 @@ static void Dalvik_dalvik_system_Taint_getTaintFile(const u4* args,
     tag = getTaintXattr(fd);
 
     if (tag) {
-	LOGI("TaintLog: getTaintFile(%d) = 0x%08x", fd, tag);
+	LOGI("DroidBox: getTaintFile(%d) = 0x%08x", fd, tag);
     }
 
     RETURN_INT(tag);
@@ -594,7 +596,7 @@ static void Dalvik_dalvik_system_Taint_addTaintFile(const u4* args,
     otag = getTaintXattr(fd);
 
     if (tag) {
-	LOGI("TaintLog: addTaintFile(%d): adding 0x%08x to 0x%08x = 0x%08x",
+	LOGI("DroidBox: addTaintFile(%d): adding 0x%08x to 0x%08x = 0x%08x",
 		fd, tag, otag, tag | otag);
     }
 
@@ -618,7 +620,7 @@ static void Dalvik_dalvik_system_Taint_log(const u4* args,
     }
 
 	msg = dvmCreateCstrFromString(msgObj);
-	LOGW("TaintLog: %s", msg);
+	LOGW("DroidBox: %s", msg);
 	char *curmsg = msg;
 	while(strlen(curmsg) > 1013)
 	{   
@@ -637,22 +639,33 @@ static void Dalvik_dalvik_system_Taint_logPathFromFd(const u4* args,
     JValue* pResult)
 {
     int fd = (int) args[0];
+    int id = (int) args[1];
     pid_t pid;
-    char ppath[20]; // these path lengths should be enough
-    char rpath[80];
+    char ppath[40]; // these path lengths should be enough
+    char rpath[160];
+    char buffer[(2*160)+1] = "";
+    char *pbuffer = buffer;
     int err;
-
+    int output = 0;
 
     pid = getpid();
-    snprintf(ppath, 20, "/proc/%d/fd/%d", pid, fd);
-    err = readlink(ppath, rpath, 80);
+    snprintf(ppath, 40, "/proc/%d/fd/%d", pid, fd);
+    err = readlink(ppath, rpath, 160);
     if (err >= 0) {
-	LOGW("TaintLog: fd %d -> %s", fd, rpath);
-    } else {
-	LOGW("TaintLog: error finding path for fd %d", fd);
+        if (strstr(rpath, "/dev/pts") == NULL && strstr(rpath, "/system/") == NULL && strstr(rpath, "/data/app/") == NULL) {
+            output = 1;
+            //int len = strlen(rpath);
+            int len = err;
+            rpath[len] = "\0";
+            int i;
+            for (i = 0; i < len + 1; i++) {
+                sprintf(pbuffer, "%x", rpath[i]);
+                pbuffer += 2;
+            }
+            LOGW("DroidBox: { \"FdAccess\": { \"path\": \"%s\", \"id\": \"%d\" } }", buffer, id);
+        }
     }
-
-    RETURN_VOID();
+    RETURN_INT(output);
 }
 
 /*
@@ -663,7 +676,7 @@ static void Dalvik_dalvik_system_Taint_logPeerFromFd(const u4* args,
 {
     int fd = (int) args[0];
 
-    LOGW("TaintLog: logPeerFromFd not yet implemented");
+    LOGW("DroidBox: logPeerFromFd not yet implemented");
 
     RETURN_VOID();
 }
@@ -745,7 +758,7 @@ const DalvikNativeMethod dvm_dalvik_system_Taint[] = {
         Dalvik_dalvik_system_Taint_addTaintFile},
     { "log",  "(Ljava/lang/String;)V",
         Dalvik_dalvik_system_Taint_log},
-    { "logPathFromFd",  "(I)V",
+    { "logPathFromFd",  "(II)I",
         Dalvik_dalvik_system_Taint_logPathFromFd},
     { "logPeerFromFd",  "(I)V",
         Dalvik_dalvik_system_Taint_logPeerFromFd},

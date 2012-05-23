@@ -45,6 +45,15 @@ typedef struct Taint {
 #define TAINT_ICCID         ((u4)0x00001000) /* ICCID (SIM card identifier) */
 #define TAINT_DEVICE_SN     ((u4)0x00002000) /* Device serial number */
 #define TAINT_ACCOUNT       ((u4)0x00004000) /* User account information */
-#define TAINT_HISTORY       ((u4)0x00008000) /* browser history */
+#define TAINT_BROWSER       ((u4)0x00008000) /* browser data, history or bookmarks */
+#define TAINT_OTHERDB       ((u4)0x00010000) /* other database data */
+#define TAINT_FILECONTENT   ((u4)0x00020000) /* file content */
+#define TAINT_PACKAGE       ((u4)0x00040000) /* installed packages */
+#define TAINT_CALL_LOG      ((u4)0x00080000) /* call history */
+#define TAINT_EMAIL         ((u4)0x00100000) /* email data */
+#define TAINT_CALENDAR      ((u4)0x00200000) /* calendar data */
+#define TAINT_SETTINGS      ((u4)0x00400000) /* system settings */
+
+
 
 #endif /*_DALVIK_INTERP_TAINT*/
