@@ -622,11 +622,11 @@ static void Dalvik_dalvik_system_Taint_log(const u4* args,
 	msg = dvmCreateCstrFromString(msgObj);
 	LOGW("DroidBox: %s", msg);
 	char *curmsg = msg;
-	while(strlen(curmsg) > 1013)
-	{   
-		curmsg = curmsg+1013;
+	//while(strlen(curmsg) > 1013)
+	//{   
+		//curmsg = curmsg+1013;
 		LOGW("%s", curmsg);
-	}   
+	//}   
 	free(msg);
 
     RETURN_VOID();
@@ -652,7 +652,7 @@ static void Dalvik_dalvik_system_Taint_logPathFromFd(const u4* args,
     snprintf(ppath, 40, "/proc/%d/fd/%d", pid, fd);
     err = readlink(ppath, rpath, 160);
     if (err >= 0) {
-        if (strstr(rpath, "/dev/pts") == NULL && strstr(rpath, "/system/") == NULL && strstr(rpath, "/data/app/") == NULL) {
+        if (strstr(rpath, "/dev/pts") == NULL && strstr(rpath, "/system/") == NULL && strstr(rpath, "/data/app/") == NULL && strstr(rpath, "/proc/") == NULL && strstr(rpath, "/data/local/tmp/") == NULL) {
             output = 1;
             //int len = strlen(rpath);
             int len = err;

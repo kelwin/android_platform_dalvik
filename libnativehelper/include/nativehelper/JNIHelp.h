@@ -87,6 +87,21 @@ jobject jniCreateFileDescriptor(C_JNIEnv* env, int fd);
 int jniGetFDFromFileDescriptor(C_JNIEnv* env, jobject fileDescriptor);
 
 /*
+ * Get an static int file descriptor from a java.io.FileDescriptor
+ */
+int jniGetIdFromFileDescriptor(C_JNIEnv* env, jobject fileDescriptor);
+
+/*
+ * Get an int file descriptor from a java.io.FileDescriptor
+ */
+int jniGetPortFromFileDescriptor(C_JNIEnv* env, jobject fileDescriptor);
+
+/*
+ * Get an int file descriptor from a java.io.FileDescriptor
+ */
+jstring jniGetNameFromFileDescriptor(C_JNIEnv* env, jobject fileDescriptor);
+
+/*
  * Set an int file descriptor to a java.io.FileDescriptor
  */
 void jniSetFileDescriptorOfFD(C_JNIEnv* env, jobject fileDescriptor, int value);
@@ -137,6 +152,19 @@ inline jobject jniCreateFileDescriptor(JNIEnv* env, int fd)
 inline int jniGetFDFromFileDescriptor(JNIEnv* env, jobject fileDescriptor)
 {
     return jniGetFDFromFileDescriptor(&env->functions, fileDescriptor);
+}
+
+inline jstring jniGetNameFromFileDescriptor(JNIEnv* env, jobject fileDescriptor)
+{
+    return jniGetNameFromFileDescriptor(&env->functions, fileDescriptor);
+}
+inline int jniGetIdFromFileDescriptor(JNIEnv* env, jobject fileDescriptor)
+{
+    return jniGetIdFromFileDescriptor(&env->functions, fileDescriptor);
+}
+inline int jniGetPortFromFileDescriptor(JNIEnv* env, jobject fileDescriptor)
+{
+    return jniGetPortFromFileDescriptor(&env->functions, fileDescriptor);
 }
 inline void jniSetFileDescriptorOfFD(JNIEnv* env, jobject fileDescriptor,
     int value)

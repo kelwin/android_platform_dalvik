@@ -290,6 +290,9 @@ static struct CachedFields {
     jclass fileDescriptorClass;
     jmethodID fileDescriptorCtor;
     jfieldID descriptorField;
+		jfieldID nameField;
+		jfieldID portField;
+		jfieldID idField;
 } gCachedFields;
 
 int registerJniHelp(JNIEnv* env) {
@@ -310,7 +313,24 @@ int registerJniHelp(JNIEnv* env) {
     if (gCachedFields.descriptorField == NULL) {
         return -1;
     }
+		
+    gCachedFields.nameField =
+            (*env)->GetFieldID(env, gCachedFields.fileDescriptorClass, "name", "Ljava/lang/String;");
+    if (gCachedFields.nameField == NULL) {
+        return -1;
+    }
+	
+    gCachedFields.portField =
+            (*env)->GetFieldID(env, gCachedFields.fileDescriptorClass, "port", "I");
+    if (gCachedFields.portField == NULL) {
+        return -1;
+    }
 
+    gCachedFields.idField =
+            (*env)->GetFieldID(env, gCachedFields.fileDescriptorClass, "id", "I");
+    if (gCachedFields.idField == NULL) {
+        return -1;
+    }
     return 0;
 }
 
@@ -330,7 +350,24 @@ jobject jniCreateFileDescriptor(JNIEnv* env, int fd) {
 int jniGetFDFromFileDescriptor(JNIEnv* env, jobject fileDescriptor) {
     return (*env)->GetIntField(env, fileDescriptor, gCachedFields.descriptorField);
 }
-
+/*
+ * Get a string file descriptor name from a java.io.FileDescriptor
+ */
+jstring jniGetNameFromFileDescriptor(JNIEnv* env, jobject fileDescriptor) {
+    return (*env)->GetObjectField(env, fileDescriptor, gCachedFields.nameField);
+}
+/*
+ * Get an int file descriptor port from a java.io.FileDescriptor
+ */
+int jniGetPortFromFileDescriptor(JNIEnv* env, jobject fileDescriptor) {
+    return (*env)->GetIntField(env, fileDescriptor, gCachedFields.portField);
+}
+/*
+ * Get an int file descriptor id from a java.io.FileDescriptor
+ */
+int jniGetIdFromFileDescriptor(JNIEnv* env, jobject fileDescriptor) {
+    return (*env)->GetIntField(env, fileDescriptor, gCachedFields.idField);
+}
 /*
  * Set the descriptor of a java.io.FileDescriptor
  */
